@@ -84,7 +84,7 @@ type PredictionInputMap = Record<
 
 function App() {
   const [user, setUser] = useState<User | null>(() => {
-    const raw = localStorage.getItem('bolao_user')
+    const raw = localStorage.getItem('palpite_user')
     return raw ? JSON.parse(raw) : null
   })
 
@@ -197,8 +197,8 @@ function App() {
         password: loginPassword
       })
 
-      localStorage.setItem('bolao_token', response.data.token)
-      localStorage.setItem('bolao_user', JSON.stringify(response.data.user))
+      localStorage.setItem('palpite_token', response.data.token)
+      localStorage.setItem('palpite_user', JSON.stringify(response.data.user))
 
       setUser(response.data.user)
       setPage('inicio')
@@ -223,8 +223,8 @@ function App() {
         password: registerPassword
       })
 
-      localStorage.setItem('bolao_token', response.data.token)
-      localStorage.setItem('bolao_user', JSON.stringify(response.data.user))
+      localStorage.setItem('palpite_token', response.data.token)
+      localStorage.setItem('palpite_user', JSON.stringify(response.data.user))
 
       setUser(response.data.user)
       setPage('inicio')
@@ -296,8 +296,8 @@ function App() {
   }
 
   function logout() {
-    localStorage.removeItem('bolao_token')
-    localStorage.removeItem('bolao_user')
+    localStorage.removeItem('palpite_token')
+    localStorage.removeItem('palpite_user')
 
     setUser(null)
     setPage('inicio')
@@ -337,7 +337,7 @@ function App() {
         <div className="auth-card">
           <div className="auth-logo">🏆</div>
 
-          <h1>Bolão Copa</h1>
+          <h1>Palpite Copa</h1>
           <p>Entre para cadastrar jogos, fazer palpites e acompanhar o ranking.</p>
 
           <div className="auth-tabs">
@@ -443,7 +443,7 @@ function App() {
             <div className="brand-icon">🏆</div>
 
             <div>
-              <h1>Bolão Copa</h1>
+              <h1>Palpite Copa</h1>
               <span>Palpites e ranking</span>
             </div>
           </div>
@@ -518,7 +518,7 @@ function App() {
             <div className="hero">
               <div>
                 <span className="pill">Copa 2026</span>
-                <h3>Bolão integrado com teu backend NestJS.</h3>
+                <h3>Palpite integrado com teu backend NestJS.</h3>
                 <p>Cadastre seleções, jogos, palpites e acompanhe o ranking calculado pelo backend.</p>
               </div>
 
