@@ -518,7 +518,7 @@ function App() {
             <div className="hero">
               <div>
                 <span className="pill">Copa 2026</span>
-                <h3>Palpite integrado com teu backend NestJS.</h3>
+                <h3>Faça seus palpites e acompanhe o ranking</h3>
                 <p>Cadastre seleções, jogos, palpites e acompanhe o ranking calculado pelo backend.</p>
               </div>
 
