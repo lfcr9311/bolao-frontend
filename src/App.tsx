@@ -855,7 +855,7 @@ function App() {
             <div className="section-header">
               <div>
                 <h3>Palpites</h3>
-                <p>Você pode criar ou alterar até 5 minutos antes da partida.</p>
+                <p>Você pode criar ou alterar até 30 minutos antes da partida.</p>
               </div>
             </div>
 
@@ -890,7 +890,7 @@ function App() {
                 <div>
                   <span className="match-badge">Regras de pontuação</span>
                   <h3>Como os pontos são calculados</h3>
-                  <p>O palpite pode ser alterado até 5 minutos antes do início da partida.</p>
+                  <p>O palpite pode ser alterado até 30 minutos antes do início da partida.</p>
                 </div>
               </div>
 
@@ -1154,7 +1154,7 @@ function formatDateSP(value: string | Date) {
 }
 
 function getPredictionDeadline(value: string | Date) {
-  return new Date(new Date(value).getTime() - 5 * 60 * 1000)
+  return new Date(new Date(value).getTime() - 30 * 60 * 1000)
 }
 
 function isPredictionDeadlineClosed(value: string | Date) {
