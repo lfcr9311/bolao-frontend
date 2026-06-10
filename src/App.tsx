@@ -10,6 +10,14 @@ const api = axios.create({
   baseURL: API_URL
 })
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('palpite_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'ranking'
 type AuthMode = 'login' | 'register'
 type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED'
@@ -110,6 +118,10 @@ function App() {
   const [teamCode, setTeamCode] = useState('')
 
   const [predictionInputs, setPredictionInputs] = useState<PredictionInputMap>({})
+
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null)
+  const [editMatchHomeScore, setEditMatchHomeScore] = useState('')
+  const [editMatchAwayScore, setEditMatchAwayScore] = useState('')
 
   const matchesOrdenados = useMemo(() => {
     return [...matches].sort((a, b) => {
@@ -292,6 +304,35 @@ function App() {
       await Promise.all([loadPredictions(user.id), loadRanking()])
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao salvar palpite')
+    }
+  }
+
+  async function handleUpdateResult(matchId: string) {
+    if (!user || !user.is_admin) {
+      setError('Apenas administradores podem atualizar resultados')
+      return
+    }
+
+    if (editMatchHomeScore === '' || editMatchAwayScore === '') {
+      setError('Preencha os dois placares')
+      return
+    }
+
+    try {
+      setError('')
+
+      await api.patch(`/matches/${matchId}/update-result`, {
+        home_score: Number(editMatchHomeScore),
+        away_score: Number(editMatchAwayScore)
+      })
+
+      setEditingMatchId(null)
+      setEditMatchHomeScore('')
+      setEditMatchAwayScore('')
+
+      await Promise.all([loadMatches(), loadRanking()])
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao atualizar resultado')
     }
   }
 
@@ -688,6 +729,7 @@ function App() {
                   <th>Fase</th>
                   <th>Status</th>
                   <th>Resultado</th>
+                  {user?.is_admin && <th>Ação</th>}
                 </tr>
               </thead>
 
@@ -715,16 +757,96 @@ function App() {
                         ? '-'
                         : `${match.home_score} x ${match.away_score}`}
                     </td>
+
+                    {user?.is_admin && (
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingMatchId(match.id)
+                            setEditMatchHomeScore(match.home_score?.toString() || '')
+                            setEditMatchAwayScore(match.away_score?.toString() || '')
+                          }}
+                          className="btn-small"
+                        >
+                          Editar
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
 
                 {matchesOrdenados.length === 0 && (
                   <tr>
-                    <td colSpan={5}>Nenhum jogo cadastrado.</td>
+                    <td colSpan={user?.is_admin ? 6 : 5}>Nenhum jogo cadastrado.</td>
                   </tr>
                 )}
               </tbody>
             </Table>
+
+            {editingMatchId && (
+              <div className="modal-overlay" onClick={() => setEditingMatchId(null)}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                  <div className="modal-header">
+                    <h3>Atualizar Resultado</h3>
+                    <button
+                      type="button"
+                      className="modal-close"
+                      onClick={() => setEditingMatchId(null)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="modal-body">
+                    {error && <div className="error-box">{error}</div>}
+
+                    <div className="form-group">
+                      <label>
+                        Gols do Mandante
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={editMatchHomeScore}
+                          onChange={(e) => setEditMatchHomeScore(e.target.value)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className="form-group">
+                      <label>
+                        Gols do Visitante
+                        <input
+                          type="number"
+                          min="0"
+                          max="99"
+                          value={editMatchAwayScore}
+                          onChange={(e) => setEditMatchAwayScore(e.target.value)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      onClick={() => setEditingMatchId(null)}
+                      className="btn-secondary"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateResult(editingMatchId)}
+                      className="btn-primary"
+                    >
+                      Atualizar Resultado
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
