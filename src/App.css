@@ -1155,3 +1155,130 @@ tr:hover td {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
+
+.other-predictions-section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+}
+
+.show-predictions-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  color: #1f2937;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.show-predictions-btn:hover {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  transform: none;
+}
+
+.other-predictions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.other-prediction-item {
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.other-pred-user {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.other-pred-user strong {
+  color: #1f2937;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.other-pred-score {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.other-pred-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.other-pred-points {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  min-width: 50px;
+}
+
+.points-0 {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.points-1 {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.points-5 {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.points-6,
+.points-8 {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.points-10 {
+  background: #fcd34d;
+  color: #78350f;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(252, 211, 77, 0.3);
+}
+
+.badge-exact {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  color: #78350f;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.badge-result {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 900;
+}

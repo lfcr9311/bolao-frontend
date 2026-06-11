@@ -72,6 +72,20 @@ type Prediction = {
   away_team_code?: string
 }
 
+type OtherUserPrediction = {
+  id: string
+  user_id: string
+  match_id: string
+  predicted_home_score: number
+  predicted_away_score: number
+  points: number
+  exact_score: boolean
+  correct_result: boolean
+  correct_goal_difference: boolean
+  user_name: string
+  user_email: string
+}
+
 type RankingItem = {
   id: string
   name: string
@@ -103,6 +117,7 @@ function App() {
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [ranking, setRanking] = useState<RankingItem[]>([])
+  const [otherUserPredictions, setOtherUserPredictions] = useState<Record<string, OtherUserPrediction[]>>({})
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -181,6 +196,18 @@ function App() {
   async function loadPredictions(userId: string) {
     const response = await api.get<Prediction[]>(`/predictions/user/${userId}`)
     setPredictions(response.data)
+  }
+
+  async function loadOtherUserPredictions(matchId: string) {
+    try {
+      const response = await api.get<OtherUserPrediction[]>(`/predictions/match/${matchId}`)
+      setOtherUserPredictions((prev) => ({
+        ...prev,
+        [matchId]: response.data
+      }))
+    } catch (err) {
+      // Silently fail if unable to load other predictions
+    }
   }
 
   async function loadAll(currentUser?: User | null) {
@@ -661,7 +688,6 @@ function App() {
             <div className="section-header">
               <div>
                 <h3>Seleções</h3>
-                <p>Cadastre as seleções participantes.</p>
               </div>
             </div>
 
@@ -902,12 +928,12 @@ function App() {
 
                 <div className="rule-item rule-blue">
                   <strong>8 pts</strong>
-                  <span>Resultado certo + diferença de gols</span>
+                  <span>Resultado certo + gols de um time</span>
                 </div>
 
                 <div className="rule-item rule-green">
                   <strong>6 pts</strong>
-                  <span>Resultado certo + gols de um time</span>
+                  <span>Resultado certo + diferença de gols</span>
                 </div>
 
                 <div className="rule-item rule-dark">
@@ -1041,6 +1067,50 @@ function App() {
                         )}
                       </div>
                     </div>
+
+                    {isDeadlineClosed && (
+                      <div className="other-predictions-section">
+                        <button
+                          type="button"
+                          className="show-predictions-btn"
+                          onClick={() => {
+                            if (!otherUserPredictions[match.id]) {
+                              loadOtherUserPredictions(match.id)
+                            }
+                          }}
+                        >
+                          {otherUserPredictions[match.id]
+                            ? `Palpites dos outros participantes (${otherUserPredictions[match.id].length})`
+                            : 'Carregar palpites dos outros participantes'}
+                        </button>
+
+                        {otherUserPredictions[match.id] && otherUserPredictions[match.id].length > 0 && (
+                          <div className="other-predictions-list">
+                            {otherUserPredictions[match.id].map((pred) => (
+                              <div className="other-prediction-item" key={pred.id}>
+                                <div className="other-pred-user">
+                                  <strong>{pred.user_name}</strong>
+                                  <span className="other-pred-score">
+                                    {pred.predicted_home_score} x {pred.predicted_away_score}
+                                  </span>
+                                </div>
+
+                                <div className="other-pred-result">
+                                  <span className={`other-pred-points points-${pred.points}`}>
+                                    {pred.points} pts
+                                  </span>
+
+                                  {pred.exact_score && <span className="badge-exact">⭐ Placar exato</span>}
+                                  {pred.correct_result && !pred.exact_score && (
+                                    <span className="badge-result">✓ Resultado certo</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
