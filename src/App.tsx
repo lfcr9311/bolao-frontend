@@ -140,6 +140,13 @@ function App() {
 
   const matchesOrdenados = useMemo(() => {
     return [...matches].sort((a, b) => {
+      const aFinished = a.status === 'FINISHED'
+      const bFinished = b.status === 'FINISHED'
+
+      if (aFinished !== bFinished) {
+        return aFinished ? 1 : -1
+      }
+
       return new Date(a.match_date).getTime() - new Date(b.match_date).getTime()
     })
   }, [matches])
