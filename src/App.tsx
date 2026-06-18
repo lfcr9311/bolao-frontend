@@ -121,6 +121,7 @@ function App() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showBrazilWarning, setShowBrazilWarning] = useState(true)
 
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -588,6 +589,27 @@ function App() {
 
         {error && <div className="error-box page-error">{error}</div>}
 
+        {showBrazilWarning && (
+          <div className="brazil-warning">
+            <div className="brazil-warning-content">
+              <span className="warning-icon">🇧🇷</span>
+              <div>
+                <strong>Regra especial: Jogos do Brasil</strong>
+                <p>
+                  Resultado certo: <strong>+20 pts</strong> | Resultado errado: <strong>-10 pts</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                className="warning-close"
+                onClick={() => setShowBrazilWarning(false)}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         {page === 'inicio' && (
           <section className="page">
             <div className="hero">
@@ -968,10 +990,15 @@ function App() {
                   <div className="prediction-card" key={match.id}>
                     <div className="prediction-card-header">
                       <div>
-                        <span className="match-badge">
-                          {match.round || 'Fase de grupos'}
-                          {match.group_name ? ` • Grupo ${match.group_name}` : ''}
-                        </span>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
+                          <span className="match-badge">
+                            {match.round || 'Fase de grupos'}
+                            {match.group_name ? ` • Grupo ${match.group_name}` : ''}
+                          </span>
+                          {(match.home_team_code === 'BRA' || match.away_team_code === 'BRA') && (
+                            <span className="brazil-badge">🇧🇷 Pontos especiais</span>
+                          )}
+                        </div>
 
                         <h4>
                           {match.home_team_name} <span>({match.home_team_code})</span>
