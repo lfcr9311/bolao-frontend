@@ -596,7 +596,7 @@ function App() {
               <div>
                 <strong>Regra especial: Jogos do Brasil</strong>
                 <p>
-                  Resultado certo: <strong>+20 pts</strong> | Resultado errado: <strong>-10 pts</strong>
+                  Placar exato: <strong>15 pts</strong> (em vez de 10)
                 </p>
               </div>
               <button
