@@ -90,6 +90,7 @@ type RankingItem = {
   id: string
   name: string
   email: string
+  photo?: string
   total_points: number
   exact_scores: number
   correct_results: number
@@ -693,12 +694,15 @@ function App() {
                 <div className="mini-list">
                   {rankingOrdenado.slice(0, 5).map((item, index) => (
                     <div className="mini-item" key={item.id}>
-                      <div>
-                        <strong>
-                          {index + 1}º {item.name}
-                        </strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {item.photo && <img src={item.photo} alt={item.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />}
+                        <div>
+                          <strong>
+                            {index + 1}º {item.name}
+                          </strong>
 
-                        <span>{item.total_points} pontos</span>
+                          <span>{item.total_points} pontos</span>
+                        </div>
                       </div>
 
                       <span className="medal">{getMedal(index)}</span>
@@ -995,7 +999,7 @@ function App() {
                             {match.round || 'Fase de grupos'}
                             {match.group_name ? ` • Grupo ${match.group_name}` : ''}
                           </span>
-                          {(match.home_team_code === 'BRA' || match.away_team_code === 'BRA') && (
+                          {(match.home_team_code?.trim().toUpperCase() === 'BRA' || match.away_team_code?.trim().toUpperCase() === 'BRA') && (
                             <span className="brazil-badge">🇧🇷 Pontos especiais</span>
                           )}
                         </div>
@@ -1170,10 +1174,15 @@ function App() {
 
             <div className="podium">
               {rankingOrdenado.slice(0, 3).map((item, index) => (
-                <div className={`podium-card podium-${index + 1}`} key={item.id}>
-                  <span>{getMedal(index)}</span>
-                  <strong>{item.name}</strong>
-                  <small>{item.total_points} pontos</small>
+                <div className={`podium-card podium-${index + 1}`} key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '32px', minHeight: '220px' }}>
+                  {item.photo && <img src={item.photo} alt={item.name} style={{ width: '200px', height: '200px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '24px' }}>{getMedal(index)}</span>
+                      <strong style={{ fontSize: '20px' }}>{item.name}</strong>
+                    </div>
+                    <small style={{ fontSize: '16px' }}>{item.total_points} pontos</small>
+                  </div>
                 </div>
               ))}
             </div>
@@ -1197,7 +1206,12 @@ function App() {
                       <strong>{index + 1}º</strong>
                     </td>
 
-                    <td>{item.name}</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        {item.photo && <img src={item.photo} alt={item.name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />}
+                        {item.name}
+                      </div>
+                    </td>
 
                     <td>
                       <strong>{item.total_points}</strong>
