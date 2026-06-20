@@ -10,6 +10,25 @@ const api = axios.create({
   baseURL: API_URL
 })
 
+const isVideoFile = (url?: string) => {
+  if (!url) return false
+  return /\.(mp4|webm|ogg|mov)$/i.test(url)
+}
+
+const MediaComponent = ({ src, alt, style }: { src?: string; alt: string; style?: React.CSSProperties }) => {
+  if (!src) return null
+
+  if (isVideoFile(src)) {
+    return (
+      <video style={style} autoPlay loop muted playsInline>
+        <source src={src} type="video/mp4" />
+      </video>
+    )
+  }
+
+  return <img src={src} alt={alt} style={style} />
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('palpite_token')
   if (token) {
@@ -695,7 +714,7 @@ function App() {
                   {rankingOrdenado.slice(0, 5).map((item, index) => (
                     <div className="mini-item" key={item.id}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {item.photo && <img src={item.photo} alt={item.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />}
+                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />}
                         <div>
                           <strong>
                             {index + 1}º {item.name}
@@ -1175,7 +1194,7 @@ function App() {
             <div className="podium">
               {rankingOrdenado.slice(0, 3).map((item, index) => (
                 <div className={`podium-card podium-${index + 1}`} key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '32px', minHeight: '220px' }}>
-                  {item.photo && <img src={item.photo} alt={item.name} style={{ width: '200px', height: '200px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />}
+                  {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '200px', height: '200px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                       <span style={{ fontSize: '24px' }}>{getMedal(index)}</span>
@@ -1208,7 +1227,7 @@ function App() {
 
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {item.photo && <img src={item.photo} alt={item.name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />}
+                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />}
                         {item.name}
                       </div>
                     </td>
