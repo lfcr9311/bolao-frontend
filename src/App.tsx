@@ -714,7 +714,7 @@ function App() {
                   {rankingOrdenado.slice(0, 5).map((item, index) => (
                     <div className="mini-item" key={item.id}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '24px', height: '24px', borderRadius: '4px', objectFit: 'cover' }} />}
+                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '24px', height: '32px', borderRadius: '4px', objectFit: 'contain' }} />}
                         <div>
                           <strong>
                             {index + 1}º {item.name}
@@ -1194,7 +1194,7 @@ function App() {
             <div className="podium">
               {rankingOrdenado.slice(0, 3).map((item, index) => (
                 <div className={`podium-card podium-${index + 1}`} key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '32px', minHeight: '220px' }}>
-                  {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '200px', height: '200px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />}
+                  {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '200px', height: '300px', borderRadius: '8px', objectFit: 'contain', flexShrink: 0 }} />}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                       <span style={{ fontSize: '24px' }}>{getMedal(index)}</span>
@@ -1227,7 +1227,7 @@ function App() {
 
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '64px', height: '64px', borderRadius: '8px', objectFit: 'cover' }} />}
+                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '64px', height: '96px', borderRadius: '8px', objectFit: 'contain' }} />}
                         {item.name}
                       </div>
                     </td>
