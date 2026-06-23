@@ -1227,7 +1227,7 @@ function App() {
 
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '64px', height: '96px', borderRadius: '8px', objectFit: 'contain' }} />}
+                        {item.photo && <MediaComponent src={item.photo} alt={item.name} style={{ width: '100px', height: '150px', borderRadius: '8px', objectFit: 'contain' }} />}
                         {item.name}
                       </div>
                     </td>
