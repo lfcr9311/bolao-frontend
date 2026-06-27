@@ -482,6 +482,40 @@ function App() {
     }
   }
 
+  async function updateKnockoutResult(matchId: string, inputs: any) {
+    if (!user || !user.is_admin) {
+      setError('Apenas administradores podem atualizar resultados')
+      return
+    }
+
+    if (inputs.home === '' || inputs.away === '') {
+      setError('Preencha os placares do tempo normal')
+      return
+    }
+
+    try {
+      setError('')
+
+      const payload: any = {
+        isAdmin: true,
+        home_score: Number(inputs.home),
+        away_score: Number(inputs.away)
+      }
+
+      if (inputs.homeExtraTime !== '') payload.home_score_extra_time = Number(inputs.homeExtraTime)
+      if (inputs.awayExtraTime !== '') payload.away_score_extra_time = Number(inputs.awayExtraTime)
+      if (inputs.homePenalties !== '') payload.home_penalties = Number(inputs.homePenalties)
+      if (inputs.awayPenalties !== '') payload.away_penalties = Number(inputs.awayPenalties)
+
+      await api.patch(`/knockout-matches/${matchId}/update-result`, payload)
+
+      setEditingMatchId(null)
+      await Promise.all([loadKnockoutMatches(), loadKnockoutPredictions(user.id)])
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao atualizar resultado')
+    }
+  }
+
   async function handleUpdateResult(matchId: string) {
     if (!user || !user.is_admin) {
       setError('Apenas administradores podem atualizar resultados')
@@ -1611,7 +1645,169 @@ function App() {
                       >
                         Salvar Palpite
                       </button>
+
+                      {user?.is_admin && (
+                        <button
+                          type="button"
+                          onClick={() => setEditingMatchId(editingMatchId === match.id ? null : match.id)}
+                          style={{
+                            flex: 1,
+                            padding: '8px 12px',
+                            backgroundColor: editingMatchId === match.id ? '#ff6b6b' : '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '14px'
+                          }}
+                        >
+                          {editingMatchId === match.id ? 'Cancelar' : 'Editar Resultado'}
+                        </button>
+                      )}
                     </div>
+
+                    {editingMatchId === match.id && user?.is_admin && (
+                      <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffc107' }}>
+                        <small style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#856404' }}>
+                          Editar Resultado (Admin)
+                        </small>
+
+                        <div className="prediction-input-row">
+                          <div className="prediction-team-block">
+                            <label>Tempo Normal • {match.home_team_name}</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={currentInput.home}
+                              onChange={(event) =>
+                                setKnockoutPredictionInputs({
+                                  ...knockoutPredictionInputs,
+                                  [match.id]: { ...currentInput, home: event.target.value }
+                                })
+                              }
+                              placeholder="0"
+                            />
+                          </div>
+
+                          <div className="score-divider">x</div>
+
+                          <div className="prediction-team-block">
+                            <label>Tempo Normal • {match.away_team_name}</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={currentInput.away}
+                              onChange={(event) =>
+                                setKnockoutPredictionInputs({
+                                  ...knockoutPredictionInputs,
+                                  [match.id]: { ...currentInput, away: event.target.value }
+                                })
+                              }
+                              placeholder="0"
+                            />
+                          </div>
+                        </div>
+
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ffc107' }}>
+                          <small style={{ color: '#856404', display: 'block', marginBottom: '8px' }}>
+                            Prorrogação (opcional)
+                          </small>
+                          <div className="prediction-input-row">
+                            <div className="prediction-team-block">
+                              <label>Prorrogação • {match.home_team_name}</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentInput.homeExtraTime}
+                                onChange={(event) =>
+                                  setKnockoutPredictionInputs({
+                                    ...knockoutPredictionInputs,
+                                    [match.id]: { ...currentInput, homeExtraTime: event.target.value }
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                            </div>
+
+                            <div className="score-divider">x</div>
+
+                            <div className="prediction-team-block">
+                              <label>Prorrogação • {match.away_team_name}</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentInput.awayExtraTime}
+                                onChange={(event) =>
+                                  setKnockoutPredictionInputs({
+                                    ...knockoutPredictionInputs,
+                                    [match.id]: { ...currentInput, awayExtraTime: event.target.value }
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                            </div>
+                          </div>
+
+                          <small style={{ color: '#856404', display: 'block', marginTop: '8px', marginBottom: '8px' }}>
+                            Pênaltis (opcional)
+                          </small>
+                          <div className="prediction-input-row">
+                            <div className="prediction-team-block">
+                              <label>Pênaltis • {match.home_team_name}</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentInput.homePenalties}
+                                onChange={(event) =>
+                                  setKnockoutPredictionInputs({
+                                    ...knockoutPredictionInputs,
+                                    [match.id]: { ...currentInput, homePenalties: event.target.value }
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                            </div>
+
+                            <div className="score-divider">x</div>
+
+                            <div className="prediction-team-block">
+                              <label>Pênaltis • {match.away_team_name}</label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={currentInput.awayPenalties}
+                                onChange={(event) =>
+                                  setKnockoutPredictionInputs({
+                                    ...knockoutPredictionInputs,
+                                    [match.id]: { ...currentInput, awayPenalties: event.target.value }
+                                  })
+                                }
+                                placeholder="0"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => updateKnockoutResult(match.id, currentInput)}
+                          style={{
+                            width: '100%',
+                            marginTop: '8px',
+                            padding: '8px 12px',
+                            backgroundColor: '#28a745',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          Confirmar Resultado
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )
               })}
