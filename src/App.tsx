@@ -37,7 +37,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'ranking'
+type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'ranking'
 type AuthMode = 'login' | 'register'
 type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED'
 
@@ -124,6 +124,71 @@ type PredictionInputMap = Record<
   }
 >
 
+type KnockoutMatch = {
+  id: string
+  home_team_id: string
+  home_team_name: string
+  home_team_code: string
+  away_team_id: string
+  away_team_name: string
+  away_team_code: string
+  home_score: number | null
+  away_score: number | null
+  home_score_extra_time: number | null
+  away_score_extra_time: number | null
+  home_penalties: number | null
+  away_penalties: number | null
+  match_date: string
+  status: MatchStatus
+  round: string
+  advance_team_id?: string | null
+}
+
+type KnockoutPrediction = {
+  id: string
+  user_id: string
+  match_id: string
+  predicted_home_score: number
+  predicted_away_score: number
+  predicted_home_score_extra_time?: number | null
+  predicted_away_score_extra_time?: number | null
+  predicted_home_penalties?: number | null
+  predicted_away_penalties?: number | null
+  points: number
+  points_regular_time: number
+  points_alternative: number
+  correct_result_regular: boolean
+  correct_score_regular: boolean
+  correct_goal_difference_regular: boolean
+  correct_alternative: boolean
+  wrong_alternative: boolean
+  real_home_score: number | null
+  real_away_score: number | null
+  real_home_score_extra_time?: number | null
+  real_away_score_extra_time?: number | null
+  real_home_penalties?: number | null
+  real_away_penalties?: number | null
+  match_date: string
+  status: string
+  round: string
+  home_team_name: string
+  home_team_code: string
+  away_team_name: string
+  away_team_code: string
+}
+
+type KnockoutPredictionInputMap = Record<
+  string,
+  {
+    home: string
+    away: string
+    homeExtraTime: string
+    awayExtraTime: string
+    homePenalties: string
+    awayPenalties: string
+  }
+>
+
 function App() {
   const [user, setUser] = useState<User | null>(() => {
     const raw = localStorage.getItem('palpite_user')
@@ -154,6 +219,10 @@ function App() {
   const [teamCode, setTeamCode] = useState('')
 
   const [predictionInputs, setPredictionInputs] = useState<PredictionInputMap>({})
+
+  const [knockoutMatches, setKnockoutMatches] = useState<KnockoutMatch[]>([])
+  const [knockoutPredictions, setKnockoutPredictions] = useState<KnockoutPrediction[]>([])
+  const [knockoutPredictionInputs, setKnockoutPredictionInputs] = useState<KnockoutPredictionInputMap>({})
 
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null)
   const [editMatchHomeScore, setEditMatchHomeScore] = useState('')
@@ -238,6 +307,24 @@ function App() {
     }
   }
 
+  async function loadKnockoutMatches() {
+    try {
+      const response = await api.get<KnockoutMatch[]>('/knockout-matches')
+      setKnockoutMatches(response.data)
+    } catch (err) {
+      // Silently fail if unable to load knockout matches
+    }
+  }
+
+  async function loadKnockoutPredictions(userId: string) {
+    try {
+      const response = await api.get<KnockoutPrediction[]>(`/knockout-matches/predictions/user/${userId}`)
+      setKnockoutPredictions(response.data)
+    } catch (err) {
+      // Silently fail if unable to load knockout predictions
+    }
+  }
+
   async function loadAll(currentUser?: User | null) {
     try {
       setError('')
@@ -245,8 +332,10 @@ function App() {
       await Promise.all([
         loadTeams(),
         loadMatches(),
+        loadKnockoutMatches(),
         loadRanking(),
-        currentUser ? loadPredictions(currentUser.id) : Promise.resolve()
+        currentUser ? loadPredictions(currentUser.id) : Promise.resolve(),
+        currentUser ? loadKnockoutPredictions(currentUser.id) : Promise.resolve()
       ])
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao carregar dados do backend')
@@ -359,6 +448,37 @@ function App() {
       await Promise.all([loadPredictions(user.id), loadRanking()])
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao salvar palpite')
+    }
+  }
+
+  async function savePredictionKnockout(matchId: string, inputs: any) {
+    if (!user) return
+
+    if (inputs.home === '' || inputs.away === '') {
+      setError('Preencha os placares do tempo normal')
+      return
+    }
+
+    try {
+      setError('')
+
+      const payload: any = {
+        userId: user.id,
+        matchId,
+        homeScore: Number(inputs.home),
+        awayScore: Number(inputs.away)
+      }
+
+      if (inputs.homeExtraTime !== '') payload.homeScoreExtraTime = Number(inputs.homeExtraTime)
+      if (inputs.awayExtraTime !== '') payload.awayScoreExtraTime = Number(inputs.awayExtraTime)
+      if (inputs.homePenalties !== '') payload.homePenalties = Number(inputs.homePenalties)
+      if (inputs.awayPenalties !== '') payload.awayPenalties = Number(inputs.awayPenalties)
+
+      await api.post('/knockout-matches/predictions', payload)
+
+      await loadKnockoutPredictions(user.id)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao salvar palpite mata-mata')
     }
   }
 
@@ -571,6 +691,15 @@ function App() {
             >
               <span>📝</span>
               Palpites
+            </button>
+
+            <button
+              type="button"
+              className={page === 'palpites-knockout' ? 'active' : ''}
+              onClick={() => setPage('palpites-knockout')}
+            >
+              <span>🏆</span>
+              Palpites Mata-Mata
             </button>
 
             <button
@@ -1182,6 +1311,314 @@ function App() {
           </section>
         )}
 
+        {page === 'palpites-knockout' && (
+          <section className="page">
+            <div className="section-header">
+              <div>
+                <h3>Palpites Mata-Mata</h3>
+                <p>Aposte nos vencedores do Round 32 até a Final, incluindo prorrogação e pênaltis.</p>
+              </div>
+            </div>
+
+            <div className="cards">
+              <div className="card card-blue">
+                <span>Jogos Mata-Mata</span>
+                <strong>{knockoutMatches.length}</strong>
+                <p>Disponíveis para consulta</p>
+              </div>
+
+              <div className="card card-green">
+                <span>Palpites feitos</span>
+                <strong>{knockoutPredictions.length}</strong>
+                <p>Já enviados por você</p>
+              </div>
+
+              <div className="card card-yellow">
+                <span>Faltando</span>
+                <strong>{Math.max(knockoutMatches.length - knockoutPredictions.length, 0)}</strong>
+                <p>Jogos sem palpite</p>
+              </div>
+
+              <div className="card card-red">
+                <span>Finalizados</span>
+                <strong>{knockoutMatches.filter((m) => m.status === 'FINISHED').length}</strong>
+                <p>Jogos encerrados</p>
+              </div>
+            </div>
+
+            <div className="rules-card">
+              <div className="rules-header">
+                <div>
+                  <span className="match-badge">Regras de pontuação</span>
+                  <h3>Mata-Mata (Round 32 até Final)</h3>
+                  <p>Você pode apostar no resultado do tempo normal e, opcionalmente, em cenários alternativos.</p>
+                </div>
+              </div>
+
+              <div className="rules-grid rules-grid-6">
+                <div className="rule-item rule-gold">
+                  <strong>10 pts</strong>
+                  <span>Placar exato</span>
+                </div>
+
+                <div className="rule-item rule-blue">
+                  <strong>8 pts</strong>
+                  <span>Vencedor + saldo</span>
+                </div>
+
+                <div className="rule-item rule-dark">
+                  <strong>5 pts</strong>
+                  <span>Apenas vencedor</span>
+                </div>
+
+                <div className="rule-item rule-green">
+                  <strong>+3 pts</strong>
+                  <span>Acertou cenário</span>
+                </div>
+
+                <div className="rule-item rule-gray">
+                  <strong>-3 pts</strong>
+                  <span>Errou cenário</span>
+                </div>
+
+                <div className="rule-item rule-dark">
+                  <strong>8-10 pts</strong>
+                  <span>Pênaltis/Prorrogação</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="prediction-grid">
+              {knockoutMatches.map((match) => {
+                const existingPrediction = knockoutPredictions.find((p) => p.match_id === match.id)
+                const currentInput = knockoutPredictionInputs[match.id] || {
+                  home: '',
+                  away: '',
+                  homeExtraTime: '',
+                  awayExtraTime: '',
+                  homePenalties: '',
+                  awayPenalties: ''
+                }
+                const isFinished = match.status === 'FINISHED'
+                const isCancelled = match.status === 'CANCELLED'
+                const isDeadlineClosed = isPredictionDeadlineClosed(match.match_date)
+                const isLocked = isFinished || isCancelled || isDeadlineClosed
+
+                return (
+                  <div className="prediction-card" key={match.id}>
+                    <div className="prediction-card-header">
+                      <div>
+                        <span className="match-badge">{match.round}</span>
+                        <h4>
+                          {match.home_team_name} <span>({match.home_team_code})</span>
+                          {' x '}
+                          {match.away_team_name} <span>({match.away_team_code})</span>
+                        </h4>
+                        <p>{formatDateSP(match.match_date)}</p>
+                        <p>Fecha para palpite: {formatDateSP(getPredictionDeadline(match.match_date))}</p>
+                      </div>
+                      <span className={getPredictionStatusClass(match.status, isDeadlineClosed)}>
+                        {getPredictionStatusLabel(match.status, isDeadlineClosed)}
+                      </span>
+                    </div>
+
+                    {existingPrediction && (
+                      <div style={{ marginBottom: '12px', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ display: 'block', marginBottom: '4px' }}>Meus Palpites:</strong>
+                          <small style={{ color: '#666' }}>
+                            Tempo Normal: {existingPrediction.predicted_home_score} x {existingPrediction.predicted_away_score}
+                          </small>
+                          {existingPrediction.predicted_home_score_extra_time !== undefined && existingPrediction.predicted_home_score_extra_time !== null && (
+                            <>
+                              <br />
+                              <small style={{ color: '#666' }}>
+                                Prorrogação: {existingPrediction.predicted_home_score_extra_time} x {existingPrediction.predicted_away_score_extra_time}
+                              </small>
+                            </>
+                          )}
+                          {existingPrediction.predicted_home_penalties !== undefined && existingPrediction.predicted_home_penalties !== null && (
+                            <>
+                              <br />
+                              <small style={{ color: '#666' }}>
+                                Pênaltis: {existingPrediction.predicted_home_penalties} x {existingPrediction.predicted_away_penalties}
+                              </small>
+                            </>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', marginTop: '8px' }}>
+                          <div>
+                            <strong style={{ fontSize: '12px' }}>Resultado T.N.</strong>
+                            <span style={{ display: 'block', fontSize: '14px' }}>
+                              {match.home_score === null || match.away_score === null
+                                ? 'Não lançado'
+                                : `${match.home_score} x ${match.away_score}`}
+                            </span>
+                          </div>
+                          <div>
+                            <strong style={{ fontSize: '12px' }}>Pontos</strong>
+                            <span style={{ display: 'block', fontSize: '14px' }}>{existingPrediction.points}</span>
+                          </div>
+                          <div>
+                            <strong style={{ fontSize: '12px' }}>Pts T.N.</strong>
+                            <span style={{ display: 'block', fontSize: '14px' }}>{existingPrediction.points_regular_time}</span>
+                          </div>
+                          <div>
+                            <strong style={{ fontSize: '12px' }}>Pts Alt.</strong>
+                            <span style={{ display: 'block', fontSize: '14px' }}>{existingPrediction.points_alternative}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="prediction-input-row">
+                      <div className="prediction-team-block">
+                        <label>Tempo Normal • {match.home_team_name}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={currentInput.home}
+                          onChange={(event) =>
+                            setKnockoutPredictionInputs({
+                              ...knockoutPredictionInputs,
+                              [match.id]: { ...currentInput, home: event.target.value }
+                            })
+                          }
+                          disabled={isLocked}
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="score-divider">x</div>
+
+                      <div className="prediction-team-block">
+                        <label>Tempo Normal • {match.away_team_name}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={currentInput.away}
+                          onChange={(event) =>
+                            setKnockoutPredictionInputs({
+                              ...knockoutPredictionInputs,
+                              [match.id]: { ...currentInput, away: event.target.value }
+                            })
+                          }
+                          disabled={isLocked}
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e0e0e0' }}>
+                      <small style={{ color: '#666', display: 'block', marginBottom: '8px' }}>
+                        Cenário alternativo (opcional) - Prorrogação
+                      </small>
+                      <div className="prediction-input-row">
+                        <div className="prediction-team-block">
+                          <label>Prorrogação • {match.home_team_name}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={currentInput.homeExtraTime}
+                            onChange={(event) =>
+                              setKnockoutPredictionInputs({
+                                ...knockoutPredictionInputs,
+                                [match.id]: { ...currentInput, homeExtraTime: event.target.value }
+                              })
+                            }
+                            disabled={isLocked}
+                            placeholder="0"
+                          />
+                        </div>
+
+                        <div className="score-divider">x</div>
+
+                        <div className="prediction-team-block">
+                          <label>Prorrogação • {match.away_team_name}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={currentInput.awayExtraTime}
+                            onChange={(event) =>
+                              setKnockoutPredictionInputs({
+                                ...knockoutPredictionInputs,
+                                [match.id]: { ...currentInput, awayExtraTime: event.target.value }
+                              })
+                            }
+                            disabled={isLocked}
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+
+                      <small style={{ color: '#666', display: 'block', marginBottom: '8px', marginTop: '8px' }}>
+                        Se empatar na prorrogação - Pênaltis
+                      </small>
+                      <div className="prediction-input-row">
+                        <div className="prediction-team-block">
+                          <label>Pênaltis • {match.home_team_name}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={currentInput.homePenalties}
+                            onChange={(event) =>
+                              setKnockoutPredictionInputs({
+                                ...knockoutPredictionInputs,
+                                [match.id]: { ...currentInput, homePenalties: event.target.value }
+                              })
+                            }
+                            disabled={isLocked}
+                            placeholder="0"
+                          />
+                        </div>
+
+                        <div className="score-divider">x</div>
+
+                        <div className="prediction-team-block">
+                          <label>Pênaltis • {match.away_team_name}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={currentInput.awayPenalties}
+                            onChange={(event) =>
+                              setKnockoutPredictionInputs({
+                                ...knockoutPredictionInputs,
+                                [match.id]: { ...currentInput, awayPenalties: event.target.value }
+                              })
+                            }
+                            disabled={isLocked}
+                            placeholder="0"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => savePredictionKnockout(match.id, currentInput)}
+                        disabled={isLocked}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          backgroundColor: isLocked ? '#ccc' : '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: isLocked ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Salvar Palpite
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )}
+
         {page === 'ranking' && (
           <section className="page">
             <div className="section-header">
@@ -1269,6 +1706,7 @@ function getPageTitle(page: Page) {
   if (page === 'selecoes') return 'Seleções'
   if (page === 'jogos') return 'Jogos'
   if (page === 'palpites') return 'Palpites'
+  if (page === 'palpites-knockout') return 'Palpites Mata-Mata'
   return 'Ranking'
 }
 
