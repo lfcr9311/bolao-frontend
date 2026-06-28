@@ -89,11 +89,11 @@ export function OtherUsersPredictions({ matchId }: Props) {
                 borderRadius: '4px'
               }}
             >
-              <span style={{ fontWeight: '600', color: '#e2e8f0', minWidth: '110px' }}>
+              <span style={{ fontWeight: '600', color: '#000000', minWidth: '110px' }}>
                 {pred.name}
               </span>
 
-              <span style={{ color: '#cbd5e1', textAlign: 'center', flex: 1 }}>
+              <span style={{ color: '#1a1a1a', textAlign: 'center', flex: 1 }}>
                 <strong style={{ fontSize: '16px' }}>{pred.home_score}</strong>
                 <span style={{ margin: '0 8px', color: '#94a3b8' }}>×</span>
                 <strong style={{ fontSize: '16px' }}>{pred.away_score}</strong>
