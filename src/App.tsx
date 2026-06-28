@@ -4,6 +4,7 @@ import axios from 'axios'
 import './App.css'
 import { BracketView2 } from './components/BracketView2'
 import { BracketLeaderboard } from './components/BracketLeaderboard'
+import { OtherUsersPredictions } from './components/OtherUsersPredictions'
 import { useBracketPredictions } from './hooks/useBracketPredictions'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -233,6 +234,7 @@ function App() {
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null)
   const [editMatchHomeScore, setEditMatchHomeScore] = useState('')
   const [editMatchAwayScore, setEditMatchAwayScore] = useState('')
+  const [showingOtherPredictions, setShowingOtherPredictions] = useState<string | null>(null)
 
   const matchesOrdenados = useMemo(() => {
     return [...matches].sort((a, b) => {
@@ -1751,7 +1753,34 @@ function App() {
                           {editingMatchId === match.id ? 'Cancelar' : 'Editar Resultado'}
                         </button>
                       )}
+
+                      <button
+                        type="button"
+                        onClick={() => setShowingOtherPredictions(showingOtherPredictions === match.id ? null : match.id)}
+                        style={{
+                          flex: 1,
+                          padding: '8px 12px',
+                          backgroundColor: showingOtherPredictions === match.id ? '#6c757d' : '#6f42c1',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {showingOtherPredictions === match.id ? 'Fechar' : '👥 Ver Outros'}
+                      </button>
                     </div>
+
+                    {showingOtherPredictions === match.id && (
+                      <div style={{ marginTop: '12px' }}>
+                        <OtherUsersPredictions
+                          matchId={match.id}
+                          homeName={match.home_team_name}
+                          awayName={match.away_team_name}
+                        />
+                      </div>
+                    )}
 
                     {editingMatchId === match.id && user?.is_admin && (
                       <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffc107' }}>
