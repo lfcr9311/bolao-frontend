@@ -1983,9 +1983,8 @@ function App() {
             <BracketView2
               matches={bracketPredictions.matches}
               predictions={bracketPredictions.predictions}
-              onPredictionChange={async (matchId, teamId) => {
+              onPredictionChange={(matchId, teamId) => {
                 if (!bracketSaved) {
-                  await bracketPredictions.makePrediction(matchId, teamId)
                   setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
                 }
               }}
