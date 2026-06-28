@@ -507,8 +507,8 @@ function App() {
       return
     }
 
-    if (bracketPredictions.predictions.length !== bracketPredictions.matches.length) {
-      setError('Complete todos os palpites antes de salvar')
+    if (Object.keys(bracketAllPredictions).length !== 31) {
+      setError('Complete todos os 31 palpites (Round 32 até Final) antes de salvar')
       return
     }
 
@@ -641,36 +641,6 @@ function App() {
     }
   }, [bracketPredictions.predictions])
 
-  useEffect(() => {
-    // Carrega o bracket salvo (prediction_array)
-    const loadBracketData = async () => {
-      if (user) {
-        const bracketData = await bracketPredictions.loadBracketPredictions()
-        if (bracketData?.prediction_array) {
-          // Converte match_numbers de volta para match_ids
-          const matchNumberToId = new Map<string, string>()
-          for (const match of bracketPredictions.matches) {
-            if ((match as any).match_number) {
-              matchNumberToId.set(String((match as any).match_number), match.id)
-            }
-          }
-
-          const predictions = Object.fromEntries(
-            Object.entries(bracketData.prediction_array).map(([matchNum, teamId]) => {
-              const matchId = matchNumberToId.get(matchNum) || matchNum
-              return [matchId, teamId]
-            })
-          )
-
-          setBracketAllPredictions(predictions as Record<string, string>)
-        }
-      }
-    }
-
-    if (page === 'bracket') {
-      loadBracketData()
-    }
-  }, [page, user, bracketPredictions.matches, bracketPredictions.loadBracketPredictions])
 
   useEffect(() => {
     setPredictionInputs((prev) => {
@@ -1933,7 +1903,7 @@ function App() {
             }}>
               <div>
                 <strong style={{ color: '#60a5fa' }}>
-                  {Object.keys(bracketAllPredictions).length} / 16 palpites feitos
+                  {Object.keys(bracketAllPredictions).length} / 31 palpites feitos
                 </strong>
                 <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '12px' }}>
                   Complete seus palpites antes de salvar
@@ -1944,11 +1914,11 @@ function App() {
                 style={{
                   background: bracketSaved
                     ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
-                    : Object.keys(bracketAllPredictions).length === 16
+                    : Object.keys(bracketAllPredictions).length === 31
                     ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
                     : 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
-                  opacity: bracketSaved ? 0.6 : Object.keys(bracketAllPredictions).length === 16 ? 1 : 0.6,
-                  cursor: bracketSaved || Object.keys(bracketAllPredictions).length !== 16 ? 'not-allowed' : 'pointer',
+                  opacity: bracketSaved ? 0.6 : Object.keys(bracketAllPredictions).length === 31 ? 1 : 0.6,
+                  cursor: bracketSaved || Object.keys(bracketAllPredictions).length !== 31 ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
                   borderRadius: '10px',
                   color: 'white',
@@ -1956,7 +1926,7 @@ function App() {
                   border: 'none',
                   fontSize: '14px'
                 }}
-                disabled={bracketSaved || Object.keys(bracketAllPredictions).length !== 16 || loading}
+                disabled={bracketSaved || Object.keys(bracketAllPredictions).length !== 31 || loading}
               >
                 {bracketSaved ? '✓ Salvo' : loading ? 'Salvando...' : '💾 Salvar Palpites'}
               </button>
