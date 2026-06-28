@@ -510,8 +510,8 @@ function App() {
       return
     }
 
-    // Verifica limite de data/hora: 28/06 20:00 UTC
-    const deadline = new Date('2026-06-28T20:00:00Z')
+    // Verifica limite de data/hora: 29/06 20:00 UTC
+    const deadline = new Date('2026-06-29T17:00:00Z')
     const now = new Date()
 
     if (now > deadline) {
