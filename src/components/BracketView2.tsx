@@ -7,6 +7,7 @@ type BracketViewProps = {
   predictions: BracketMatch[]
   onPredictionChange: (matchId: string, teamId: string) => void
   loading?: boolean
+  disabled?: boolean
 }
 
 // Ordem EXATA dos confrontos segundo a lógica FIFA/CONMEBOL
@@ -36,7 +37,7 @@ const BRACKET_MATCHUPS = {
   ]
 }
 
-export function BracketView2({ matches, predictions, onPredictionChange, loading = false }: BracketViewProps) {
+export function BracketView2({ matches, predictions, onPredictionChange, loading = false, disabled = false }: BracketViewProps) {
   const [selectedPredictions, setSelectedPredictions] = useState<Map<string, { teamId: string; teamName: string }>>(
     new Map()
   )
@@ -55,6 +56,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
   }, [predictions])
 
   const handleTeamSelect = (matchId: string, teamId: string, teamName: string, isRound32: boolean) => {
+    if (disabled) return
     setSelectedPredictions((prev) => new Map(prev).set(matchId, { teamId, teamName }))
     if (isRound32) {
       onPredictionChange(matchId, teamId)

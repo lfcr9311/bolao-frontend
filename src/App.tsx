@@ -517,12 +517,20 @@ function App() {
       setError('')
       setLoading(true)
 
-      // Salva o array completo de palpites (73-104)
+      // Cria mapa de match_id → match_number
+      const matchIdToNumber = new Map<string, number>()
+      for (const match of bracketPredictions.matches) {
+        if ((match as any).match_number) {
+          matchIdToNumber.set(match.id, (match as any).match_number)
+        }
+      }
+
+      // Converte match_ids para match_numbers no prediction array
       const predictionArray = Object.fromEntries(
-        Object.entries(bracketAllPredictions).map(([matchId, teamId]) => [
-          matchId,
-          teamId
-        ])
+        Object.entries(bracketAllPredictions).map(([matchId, teamId]) => {
+          const matchNumber = matchIdToNumber.get(matchId) || matchId
+          return [String(matchNumber), teamId]
+        })
       )
 
       await api.post('/bracket-predictions/save-bracket', {
@@ -619,6 +627,20 @@ function App() {
       loadAll(user)
     }
   }, [])
+
+  useEffect(() => {
+    // Popula bracketAllPredictions com as previsões existentes
+    if (bracketPredictions.predictions && bracketPredictions.predictions.length > 0) {
+      const predictions = bracketPredictions.predictions.reduce((acc, pred) => {
+        if (pred.predicted_team_id) {
+          acc[pred.id] = pred.predicted_team_id
+        }
+        return acc
+      }, {} as Record<string, string>)
+
+      setBracketAllPredictions(predictions)
+    }
+  }, [bracketPredictions.predictions])
 
   useEffect(() => {
     setPredictionInputs((prev) => {
@@ -1948,10 +1970,13 @@ function App() {
               matches={bracketPredictions.matches}
               predictions={bracketPredictions.predictions}
               onPredictionChange={async (matchId, teamId) => {
-                await bracketPredictions.makePrediction(matchId, teamId)
-                setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
+                if (!bracketSaved) {
+                  await bracketPredictions.makePrediction(matchId, teamId)
+                  setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
+                }
               }}
               loading={bracketPredictions.loading}
+              disabled={bracketSaved}
             />
 
             <BracketLeaderboard
