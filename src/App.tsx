@@ -663,11 +663,6 @@ function App() {
           )
 
           setBracketAllPredictions(predictions as Record<string, string>)
-
-          // Se já foi salvo, marca como salvo
-          if (bracketData.prediction_array && Object.keys(bracketData.prediction_array).length > 0) {
-            setBracketSaved(true)
-          }
         }
       }
     }
