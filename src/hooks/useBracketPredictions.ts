@@ -79,6 +79,16 @@ export function useBracketPredictions() {
     }
   }, [])
 
+  const loadBracketPredictions = useCallback(async () => {
+    try {
+      const response = await api.get('/bracket-predictions/my-bracket')
+      return response.data
+    } catch (err: any) {
+      console.error('Erro ao carregar palpites do bracket:', err)
+      return null
+    }
+  }, [])
+
   const loadStats = useCallback(async () => {
     try {
       const response = await api.get('/bracket-predictions/stats')
@@ -137,6 +147,7 @@ export function useBracketPredictions() {
     error,
     loadMatches,
     loadPredictions,
+    loadBracketPredictions,
     loadStats,
     loadLeaderboard,
     makePrediction,

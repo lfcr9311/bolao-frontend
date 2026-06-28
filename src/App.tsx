@@ -642,6 +642,42 @@ function App() {
   }, [bracketPredictions.predictions])
 
   useEffect(() => {
+    // Carrega o bracket salvo (prediction_array)
+    const loadBracketData = async () => {
+      if (user) {
+        const bracketData = await bracketPredictions.loadBracketPredictions()
+        if (bracketData?.prediction_array) {
+          // Converte match_numbers de volta para match_ids
+          const matchNumberToId = new Map<string, string>()
+          for (const match of bracketPredictions.matches) {
+            if ((match as any).match_number) {
+              matchNumberToId.set(String((match as any).match_number), match.id)
+            }
+          }
+
+          const predictions = Object.fromEntries(
+            Object.entries(bracketData.prediction_array).map(([matchNum, teamId]) => {
+              const matchId = matchNumberToId.get(matchNum) || matchNum
+              return [matchId, teamId]
+            })
+          )
+
+          setBracketAllPredictions(predictions as Record<string, string>)
+
+          // Se já foi salvo, marca como salvo
+          if (bracketData.prediction_array && Object.keys(bracketData.prediction_array).length > 0) {
+            setBracketSaved(true)
+          }
+        }
+      }
+    }
+
+    if (page === 'bracket') {
+      loadBracketData()
+    }
+  }, [page, user, bracketPredictions.matches, bracketPredictions.loadBracketPredictions])
+
+  useEffect(() => {
     setPredictionInputs((prev) => {
       const next: PredictionInputMap = {}
 
