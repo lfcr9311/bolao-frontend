@@ -1527,6 +1527,15 @@ function App() {
                 const isDeadlineClosed = isPredictionDeadlineClosed(match.match_date)
                 const isLocked = isFinished || isCancelled || isDeadlineClosed
 
+                // Validação: apenas habilita próximas seções se houver empate
+                const tnHome = parseInt(currentInput.home) || 0
+                const tnAway = parseInt(currentInput.away) || 0
+                const isNormalTimeEqual = currentInput.home !== '' && currentInput.away !== '' && tnHome === tnAway
+
+                const etHome = parseInt(currentInput.homeExtraTime) || 0
+                const etAway = parseInt(currentInput.awayExtraTime) || 0
+                const isExtraTimeEqual = currentInput.homeExtraTime !== '' && currentInput.awayExtraTime !== '' && etHome === etAway
+
                 return (
                   <div className="prediction-card" key={match.id}>
                     <div className="prediction-card-header">
@@ -1633,8 +1642,8 @@ function App() {
                     </div>
 
                     <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e0e0e0' }}>
-                      <small style={{ color: '#666', display: 'block', marginBottom: '8px' }}>
-                        Cenário alternativo (opcional) - Prorrogação
+                      <small style={{ color: isNormalTimeEqual ? '#666' : '#999', display: 'block', marginBottom: '8px' }}>
+                        Cenário alternativo (opcional) - Prorrogação {!isNormalTimeEqual && '(Habilitar com empate no T.N.)'}
                       </small>
                       <div className="prediction-input-row">
                         <div className="prediction-team-block">
@@ -1649,8 +1658,9 @@ function App() {
                                 [match.id]: { ...currentInput, homeExtraTime: event.target.value }
                               })
                             }
-                            disabled={isLocked}
+                            disabled={isLocked || !isNormalTimeEqual}
                             placeholder="0"
+                            style={{ opacity: !isNormalTimeEqual ? 0.5 : 1 }}
                           />
                         </div>
 
@@ -1668,14 +1678,15 @@ function App() {
                                 [match.id]: { ...currentInput, awayExtraTime: event.target.value }
                               })
                             }
-                            disabled={isLocked}
+                            disabled={isLocked || !isNormalTimeEqual}
                             placeholder="0"
+                            style={{ opacity: !isNormalTimeEqual ? 0.5 : 1 }}
                           />
                         </div>
                       </div>
 
-                      <small style={{ color: '#666', display: 'block', marginBottom: '8px', marginTop: '8px' }}>
-                        Se empatar na prorrogação - Pênaltis
+                      <small style={{ color: isExtraTimeEqual ? '#666' : '#999', display: 'block', marginBottom: '8px', marginTop: '8px' }}>
+                        Se empatar na prorrogação - Pênaltis {!isExtraTimeEqual && '(Habilitar com empate na prorrogação)'}
                       </small>
                       <div className="prediction-input-row">
                         <div className="prediction-team-block">
@@ -1690,8 +1701,9 @@ function App() {
                                 [match.id]: { ...currentInput, homePenalties: event.target.value }
                               })
                             }
-                            disabled={isLocked}
+                            disabled={isLocked || !isExtraTimeEqual}
                             placeholder="0"
+                            style={{ opacity: !isExtraTimeEqual ? 0.5 : 1 }}
                           />
                         </div>
 
@@ -1709,8 +1721,9 @@ function App() {
                                 [match.id]: { ...currentInput, awayPenalties: event.target.value }
                               })
                             }
-                            disabled={isLocked}
+                            disabled={isLocked || !isExtraTimeEqual}
                             placeholder="0"
+                            style={{ opacity: !isExtraTimeEqual ? 0.5 : 1 }}
                           />
                         </div>
                       </div>
