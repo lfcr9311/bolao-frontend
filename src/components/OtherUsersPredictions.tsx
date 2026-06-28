@@ -16,11 +16,9 @@ type OtherPrediction = {
 
 type Props = {
   matchId: string
-  homeName: string
-  awayName: string
 }
 
-export function OtherUsersPredictions({ matchId, homeName, awayName }: Props) {
+export function OtherUsersPredictions({ matchId }: Props) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 

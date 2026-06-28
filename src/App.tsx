@@ -1776,8 +1776,6 @@ function App() {
                       <div style={{ marginTop: '12px' }}>
                         <OtherUsersPredictions
                           matchId={match.id}
-                          homeName={match.home_team_name}
-                          awayName={match.away_team_name}
                         />
                       </div>
                     )}
