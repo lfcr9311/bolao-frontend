@@ -191,7 +191,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
 
   const final = buildFinal()
 
-  const MatchCard = ({ matchId, team1, team2, isRound32 = false }: any) => {
+  const MatchCard = ({ matchId, team1, team2 }: any) => {
     if (!team1 || !team2) return null
 
     const pred = selectedPredictions.get(matchId)
@@ -212,7 +212,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
           <div className="match-divider">vs</div>
           <div
             className={`team-option ${pred?.teamId === team2.teamId ? 'selected' : ''}`}
-            onClick={() => handleTeamSelect(matchId, team2.teamId, team2.teamName, isRound32)}
+            onClick={() => handleTeamSelect(matchId, team2.teamId, team2.teamName)}
           >
             <div className="team-info">
               <span className="team-flag">{team2.teamCode}</span>
