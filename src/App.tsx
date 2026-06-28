@@ -624,6 +624,27 @@ function App() {
   useEffect(() => {
     if (user) {
       loadAll(user)
+
+      // Verifica se user já salvou bracket
+      const checkBracketSaved = async () => {
+        try {
+          const api = axios.create({
+            baseURL: API_URL,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('palpite_token') || ''}`
+            }
+          })
+
+          const result = await api.get('/bracket-predictions/my-bracket')
+          if (result.data?.prediction_array && Object.keys(result.data.prediction_array).length > 0) {
+            setBracketSaved(true)
+          }
+        } catch (err) {
+          // Silently fail
+        }
+      }
+
+      checkBracketSaved()
     }
   }, [])
 
