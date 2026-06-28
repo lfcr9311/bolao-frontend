@@ -209,7 +209,6 @@ function App() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showBrazilWarning, setShowBrazilWarning] = useState(true)
 
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -858,27 +857,6 @@ function App() {
         </header>
 
         {error && <div className="error-box page-error">{error}</div>}
-
-        {showBrazilWarning && (
-          <div className="brazil-warning">
-            <div className="brazil-warning-content">
-              <span className="warning-icon">🇧🇷</span>
-              <div>
-                <strong>Regra especial: Jogos do Brasil</strong>
-                <p>
-                  Placar exato: <strong>15 pts</strong> (em vez de 10)
-                </p>
-              </div>
-              <button
-                type="button"
-                className="warning-close"
-                onClick={() => setShowBrazilWarning(false)}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
 
         {page === 'inicio' && (
           <section className="page">
