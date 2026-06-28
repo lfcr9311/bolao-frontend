@@ -1933,7 +1933,7 @@ function App() {
             }}>
               <div>
                 <strong style={{ color: '#60a5fa' }}>
-                  {bracketPredictions.predictions.length} / {bracketPredictions.matches.length} palpites feitos
+                  {Object.keys(bracketAllPredictions).length} / 16 palpites feitos
                 </strong>
                 <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '12px' }}>
                   Complete seus palpites antes de salvar
@@ -1944,11 +1944,11 @@ function App() {
                 style={{
                   background: bracketSaved
                     ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
-                    : bracketPredictions.predictions.length === bracketPredictions.matches.length
+                    : Object.keys(bracketAllPredictions).length === 16
                     ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
                     : 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
-                  opacity: bracketSaved ? 0.6 : bracketPredictions.predictions.length === bracketPredictions.matches.length ? 1 : 0.6,
-                  cursor: bracketSaved || bracketPredictions.predictions.length !== bracketPredictions.matches.length ? 'not-allowed' : 'pointer',
+                  opacity: bracketSaved ? 0.6 : Object.keys(bracketAllPredictions).length === 16 ? 1 : 0.6,
+                  cursor: bracketSaved || Object.keys(bracketAllPredictions).length !== 16 ? 'not-allowed' : 'pointer',
                   padding: '12px 24px',
                   borderRadius: '10px',
                   color: 'white',
@@ -1956,7 +1956,7 @@ function App() {
                   border: 'none',
                   fontSize: '14px'
                 }}
-                disabled={bracketSaved || bracketPredictions.predictions.length !== bracketPredictions.matches.length || loading}
+                disabled={bracketSaved || Object.keys(bracketAllPredictions).length !== 16 || loading}
               >
                 {bracketSaved ? '✓ Salvo' : loading ? 'Salvando...' : '💾 Salvar Palpites'}
               </button>
@@ -1979,9 +1979,7 @@ function App() {
               matches={bracketPredictions.matches}
               predictions={bracketPredictions.predictions}
               onPredictionChange={(matchId, teamId) => {
-                if (!bracketSaved) {
-                  setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
-                }
+                setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
               }}
               loading={bracketPredictions.loading}
               disabled={bracketSaved}

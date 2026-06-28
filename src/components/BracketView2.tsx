@@ -58,9 +58,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
   const handleTeamSelect = (matchId: string, teamId: string, teamName: string, isRound32: boolean) => {
     if (disabled) return
     setSelectedPredictions((prev) => new Map(prev).set(matchId, { teamId, teamName }))
-    if (isRound32) {
-      onPredictionChange(matchId, teamId)
-    }
+    onPredictionChange(matchId, teamId)
   }
 
   // Get Round 32 matches by their official match numbers (73-88)
