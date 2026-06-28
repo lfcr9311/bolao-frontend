@@ -26,7 +26,6 @@ export function BracketResults() {
   const [results, setResults] = useState<BracketResult | null>(null)
   const [teamMap, setTeamMap] = useState<Record<string, TeamInfo>>({})
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
 
   useEffect(() => {
     loadResults()
@@ -35,7 +34,6 @@ export function BracketResults() {
   const loadResults = async () => {
     try {
       setLoading(true)
-      setError('')
 
       const api = axios.create({
         baseURL: API_URL,
@@ -57,7 +55,7 @@ export function BracketResults() {
       }
       setTeamMap(map)
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao carregar resultados')
+      console.error('Erro ao carregar resultados:', err)
     } finally {
       setLoading(false)
     }

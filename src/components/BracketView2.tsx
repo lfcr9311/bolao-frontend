@@ -55,7 +55,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
     setSelectedPredictions(map)
   }, [predictions])
 
-  const handleTeamSelect = (matchId: string, teamId: string, teamName: string, isRound32: boolean) => {
+  const handleTeamSelect = (matchId: string, teamId: string, teamName: string) => {
     if (disabled) return
     setSelectedPredictions((prev) => new Map(prev).set(matchId, { teamId, teamName }))
     onPredictionChange(matchId, teamId)
@@ -201,7 +201,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
         <div className="match-teams">
           <div
             className={`team-option ${pred?.teamId === team1.teamId ? 'selected' : ''}`}
-            onClick={() => handleTeamSelect(matchId, team1.teamId, team1.teamName, isRound32)}
+            onClick={() => handleTeamSelect(matchId, team1.teamId, team1.teamName)}
           >
             <div className="team-info">
               <span className="team-flag">{team1.teamCode}</span>
