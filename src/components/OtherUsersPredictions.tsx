@@ -80,41 +80,51 @@ export function OtherUsersPredictions({ matchId, homeName, awayName }: Props) {
           Nenhum palpite de outros participantes ainda
         </div>
       ) : (
-        <div>
-          <div style={{ fontSize: '11px', color: '#86efac', marginBottom: '10px', fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+          <div style={{ fontSize: '11px', color: '#86efac', marginBottom: '8px', fontWeight: 'bold' }}>
             👥 {data?.totalPredictions} participantes palpitaram
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {data?.predictions?.map((pred: OtherPrediction, idx: number) => (
-              <div
-                key={idx}
-                style={{
-                  background: 'rgba(34, 197, 94, 0.05)',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  fontSize: '10px',
-                  borderLeft: '3px solid #86efac',
-                  paddingLeft: '10px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', color: '#86efac', minWidth: '80px' }}>
-                    {pred.name}
-                  </span>
-                  <span style={{ color: '#cbd5e1' }}>
-                    {homeName} <strong>{pred.home_score}</strong>
-                    <span style={{ margin: '0 4px', color: '#94a3b8' }}>×</span>
-                    <strong>{pred.away_score}</strong> {awayName}
-                  </span>
-                </div>
+          {data?.predictions?.map((pred: OtherPrediction, idx: number) => (
+            <div
+              key={idx}
+              style={{
+                background: idx % 2 === 0 ? 'rgba(34, 197, 94, 0.05)' : 'transparent',
+                padding: '10px 12px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontSize: '12px',
+                borderRadius: '4px'
+              }}
+            >
+              <span style={{ fontWeight: '600', color: '#86efac', minWidth: '100px' }}>
+                {pred.name}
+              </span>
+
+              <span style={{ color: '#cbd5e1', textAlign: 'center', flex: 1 }}>
+                <strong>{pred.home_score}</strong>
+                <span style={{ margin: '0 6px', color: '#94a3b8' }}>×</span>
+                <strong>{pred.away_score}</strong>
                 {pred.home_score_extra_time !== null && (
-                  <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>
-                    Prorr: {pred.home_score_extra_time}×{pred.away_score_extra_time} | Pen: {pred.home_penalties}×{pred.away_penalties}
-                  </div>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', marginLeft: '8px' }}>
+                    ({pred.home_score_extra_time}×{pred.away_score_extra_time})
+                  </span>
                 )}
-              </div>
-            ))}
-          </div>
+              </span>
+
+              {pred.home_penalties !== null && (
+                <span style={{
+                  fontSize: '10px',
+                  color: '#94a3b8',
+                  marginLeft: '12px',
+                  minWidth: '50px',
+                  textAlign: 'right'
+                }}>
+                  Pen: {pred.home_penalties}×{pred.away_penalties}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
