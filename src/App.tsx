@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode, SyntheticEvent } from 'react'
 import axios from 'axios'
 import './App.css'
+import { BracketView2 } from './components/BracketView2'
+import { BracketLeaderboard } from './components/BracketLeaderboard'
+import { useBracketPredictions } from './hooks/useBracketPredictions'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const TIME_ZONE = 'America/Sao_Paulo'
@@ -37,7 +40,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'ranking'
+type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'bracket' | 'ranking'
 type AuthMode = 'login' | 'register'
 type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED'
 
@@ -224,6 +227,10 @@ function App() {
   const [knockoutPredictions, setKnockoutPredictions] = useState<KnockoutPrediction[]>([])
   const [knockoutPredictionInputs, setKnockoutPredictionInputs] = useState<KnockoutPredictionInputMap>({})
 
+  const bracketPredictions = useBracketPredictions()
+  const [bracketSaved, setBracketSaved] = useState(false)
+  const [bracketAllPredictions, setBracketAllPredictions] = useState<Record<string, string>>({})
+
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null)
   const [editMatchHomeScore, setEditMatchHomeScore] = useState('')
   const [editMatchAwayScore, setEditMatchAwayScore] = useState('')
@@ -335,7 +342,11 @@ function App() {
         loadKnockoutMatches(),
         loadRanking(),
         currentUser ? loadPredictions(currentUser.id) : Promise.resolve(),
-        currentUser ? loadKnockoutPredictions(currentUser.id) : Promise.resolve()
+        currentUser ? loadKnockoutPredictions(currentUser.id) : Promise.resolve(),
+        bracketPredictions.loadMatches(),
+        currentUser ? bracketPredictions.loadPredictions() : Promise.resolve(),
+        currentUser ? bracketPredictions.loadStats() : Promise.resolve(),
+        bracketPredictions.loadLeaderboard()
       ])
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao carregar dados do backend')
@@ -479,6 +490,51 @@ function App() {
       await loadKnockoutPredictions(user.id)
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao salvar palpite mata-mata')
+    }
+  }
+
+  async function handleSaveBracketPredictions() {
+    if (!user) {
+      setError('Usuário não encontrado')
+      return
+    }
+
+    // Verifica limite de data/hora: 28/06 20:00 UTC
+    const deadline = new Date('2026-06-28T20:00:00Z')
+    const now = new Date()
+
+    if (now > deadline) {
+      setError('⏰ Prazo encerrado! Palpites do bracket só podem ser salvos até 28/06 às 20:00 UTC')
+      return
+    }
+
+    if (bracketPredictions.predictions.length !== bracketPredictions.matches.length) {
+      setError('Complete todos os palpites antes de salvar')
+      return
+    }
+
+    try {
+      setError('')
+      setLoading(true)
+
+      // Salva o array completo de palpites (73-104)
+      const predictionArray = Object.fromEntries(
+        Object.entries(bracketAllPredictions).map(([matchId, teamId]) => [
+          matchId,
+          teamId
+        ])
+      )
+
+      await api.post('/bracket-predictions/save-bracket', {
+        userId: user.id,
+        predictionArray
+      })
+
+      setBracketSaved(true)
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao salvar palpites do bracket')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -734,6 +790,15 @@ function App() {
             >
               <span>🏆</span>
               Palpites Mata-Mata
+            </button>
+
+            <button
+              type="button"
+              className={page === 'bracket' ? 'active' : ''}
+              onClick={() => setPage('bracket')}
+            >
+              <span>🎯</span>
+              Bracket
             </button>
 
             <button
@@ -1812,6 +1877,88 @@ function App() {
                 )
               })}
             </div>
+          </section>
+        )}
+
+        {page === 'bracket' && (
+          <section className="page">
+            <div className="section-header">
+              <div>
+                <h3>Bracket - Mata-Mata</h3>
+                <p>Escolha os times que você acha que vão passar em cada jogo. Ganha em potência de 2!</p>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              marginBottom: '20px',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(59, 130, 246, 0.1)',
+              padding: '16px',
+              borderRadius: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.2)'
+            }}>
+              <div>
+                <strong style={{ color: '#60a5fa' }}>
+                  {bracketPredictions.predictions.length} / {bracketPredictions.matches.length} palpites feitos
+                </strong>
+                <p style={{ margin: '4px 0 0', color: '#94a3b8', fontSize: '12px' }}>
+                  Complete seus palpites antes de salvar
+                </p>
+              </div>
+              <button
+                onClick={handleSaveBracketPredictions}
+                style={{
+                  background: bracketSaved
+                    ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                    : bracketPredictions.predictions.length === bracketPredictions.matches.length
+                    ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                    : 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
+                  opacity: bracketSaved ? 0.6 : bracketPredictions.predictions.length === bracketPredictions.matches.length ? 1 : 0.6,
+                  cursor: bracketSaved || bracketPredictions.predictions.length !== bracketPredictions.matches.length ? 'not-allowed' : 'pointer',
+                  padding: '12px 24px',
+                  borderRadius: '10px',
+                  color: 'white',
+                  fontWeight: '800',
+                  border: 'none',
+                  fontSize: '14px'
+                }}
+                disabled={bracketSaved || bracketPredictions.predictions.length !== bracketPredictions.matches.length || loading}
+              >
+                {bracketSaved ? '✓ Salvo' : loading ? 'Salvando...' : '💾 Salvar Palpites'}
+              </button>
+            </div>
+
+            {bracketPredictions.error && (
+              <div style={{
+                padding: '16px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '8px',
+                color: '#fca5a5',
+                marginBottom: '16px'
+              }}>
+                {bracketPredictions.error}
+              </div>
+            )}
+
+            <BracketView2
+              matches={bracketPredictions.matches}
+              predictions={bracketPredictions.predictions}
+              onPredictionChange={async (matchId, teamId) => {
+                await bracketPredictions.makePrediction(matchId, teamId)
+                setBracketAllPredictions(prev => ({...prev, [matchId]: teamId}))
+              }}
+              loading={bracketPredictions.loading}
+            />
+
+            <BracketLeaderboard
+              leaderboard={bracketPredictions.leaderboard}
+              stats={bracketPredictions.stats}
+              loading={bracketPredictions.loading}
+            />
           </section>
         )}
 
