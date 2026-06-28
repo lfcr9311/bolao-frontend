@@ -202,6 +202,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
           <div
             className={`team-option ${pred?.teamId === team1.teamId ? 'selected' : ''}`}
             onClick={() => handleTeamSelect(matchId, team1.teamId, team1.teamName)}
+            style={{ cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.8 : 1 }}
           >
             <div className="team-info">
               <span className="team-flag">{team1.teamCode}</span>
@@ -213,6 +214,7 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
           <div
             className={`team-option ${pred?.teamId === team2.teamId ? 'selected' : ''}`}
             onClick={() => handleTeamSelect(matchId, team2.teamId, team2.teamName)}
+            style={{ cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.8 : 1 }}
           >
             <div className="team-info">
               <span className="team-flag">{team2.teamCode}</span>
@@ -230,6 +232,20 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
   }
 
   return (
+    <>
+      {disabled && (
+        <div style={{
+          background: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          fontSize: '14px',
+          color: '#1e40af'
+        }}>
+          🔒 Bracket salvo! Suas seleções estão fixadas e não podem ser alteradas.
+        </div>
+      )}
     <div className="bracket-container">
       <div className="bracket-scroll">
         {/* Round 32 */}
@@ -378,5 +394,6 @@ export function BracketView2({ matches, predictions, onPredictionChange, loading
         )}
       </div>
     </div>
+    </>
   )
 }

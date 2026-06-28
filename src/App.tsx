@@ -42,6 +42,7 @@ api.interceptors.request.use((config) => {
 })
 
 type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'bracket' | 'ranking'
+type RankingView = 'geral' | 'knockout'
 type AuthMode = 'login' | 'register'
 type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED'
 
@@ -206,6 +207,8 @@ function App() {
   const [matches, setMatches] = useState<Match[]>([])
   const [predictions, setPredictions] = useState<Prediction[]>([])
   const [ranking, setRanking] = useState<RankingItem[]>([])
+  const [rankingKnockout, setRankingKnockout] = useState<RankingItem[]>([])
+  const [rankingView, setRankingView] = useState<RankingView>('geral')
   const [otherUserPredictions, setOtherUserPredictions] = useState<Record<string, OtherUserPrediction[]>>({})
 
   const [loading, setLoading] = useState(false)
@@ -260,7 +263,8 @@ function App() {
   }, [predictions])
 
   const rankingOrdenado = useMemo(() => {
-    return [...ranking].sort((a, b) => {
+    const dataToSort = rankingView === 'geral' ? ranking : rankingKnockout
+    return [...dataToSort].sort((a, b) => {
       if (b.total_points !== a.total_points) {
         return b.total_points - a.total_points
       }
@@ -275,7 +279,7 @@ function App() {
 
       return a.name.localeCompare(b.name)
     })
-  }, [ranking])
+  }, [ranking, rankingKnockout, rankingView])
 
   const lider = rankingOrdenado[0]
   const jogosFinalizados = matches.filter((match) => match.status === 'FINISHED').length
@@ -296,6 +300,11 @@ function App() {
   async function loadRanking() {
     const response = await api.get<RankingItem[]>('/ranking')
     setRanking(response.data)
+  }
+
+  async function loadRankingKnockout() {
+    const response = await api.get<RankingItem[]>('/ranking/knockout')
+    setRankingKnockout(response.data)
   }
 
   async function loadPredictions(userId: string) {
@@ -342,6 +351,7 @@ function App() {
         loadMatches(),
         loadKnockoutMatches(),
         loadRanking(),
+        loadRankingKnockout(),
         currentUser ? loadPredictions(currentUser.id) : Promise.resolve(),
         currentUser ? loadKnockoutPredictions(currentUser.id) : Promise.resolve(),
         bracketPredictions.loadMatches(),
@@ -2029,8 +2039,39 @@ function App() {
             <div className="section-header">
               <div>
                 <h3>Ranking</h3>
-                <p>Classificação geral dos participantes.</p>
+                <p>Classificação {rankingView === 'geral' ? 'geral' : 'mata-mata'} dos participantes.</p>
               </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+              <button
+                onClick={() => setRankingView('geral')}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: rankingView === 'geral' ? '#007bff' : '#f0f0f0',
+                  color: rankingView === 'geral' ? 'white' : '#333',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Ranking Geral
+              </button>
+              <button
+                onClick={() => setRankingView('knockout')}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: rankingView === 'knockout' ? '#007bff' : '#f0f0f0',
+                  color: rankingView === 'knockout' ? 'white' : '#333',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                🥊 Mata-Mata
+              </button>
             </div>
 
             <div className="podium">
