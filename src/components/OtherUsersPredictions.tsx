@@ -12,6 +12,8 @@ type OtherPrediction = {
   away_score_extra_time?: number
   home_penalties?: number
   away_penalties?: number
+  points?: number
+  correct_score_regular?: boolean
 }
 
 type Props = {
@@ -113,6 +115,19 @@ export function OtherUsersPredictions({ matchId }: Props) {
                   textAlign: 'right'
                 }}>
                   Pen: {pred.home_penalties}×{pred.away_penalties}
+                </span>
+              )}
+
+              {pred.points !== undefined && (
+                <span style={{
+                  fontSize: '13px',
+                  fontWeight: 'bold',
+                  color: pred.points > 0 ? '#22c55e' : '#94a3b8',
+                  marginLeft: '14px',
+                  minWidth: '40px',
+                  textAlign: 'right'
+                }}>
+                  {pred.points > 0 ? `+${pred.points}` : `${pred.points}`} pts
                 </span>
               )}
             </div>
