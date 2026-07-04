@@ -1522,7 +1522,7 @@ function App() {
             </div>
 
             <div className="prediction-grid">
-              {knockoutMatches.sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime()).map((match) => {
+              {knockoutMatches.filter((m) => m.status !== 'FINISHED').sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime()).map((match) => {
                 const existingPrediction = knockoutPredictions.find((p) => p.match_id === match.id)
                 const currentInput = knockoutPredictionInputs[match.id] || {
                   home: '',
