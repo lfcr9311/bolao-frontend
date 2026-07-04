@@ -1521,8 +1521,50 @@ function App() {
               </div>
             </div>
 
+            {knockoutMatches.filter((m) => m.status === 'FINISHED').length > 0 && (
+              <div className="closed-matches-section">
+                <div className="closed-matches-header">
+                  <span className="closed-badge">🔒 Jogos Fechados</span>
+                  <span className="closed-count">{knockoutMatches.filter((m) => m.status === 'FINISHED').length} finalizado{knockoutMatches.filter((m) => m.status === 'FINISHED').length !== 1 ? 's' : ''}</span>
+                </div>
+                <div className="closed-matches-grid">
+                  {knockoutMatches.filter((m) => m.status === 'FINISHED').sort((a, b) => new Date(b.match_date).getTime() - new Date(a.match_date).getTime()).map((match) => {
+                    const existingPrediction = knockoutPredictions.find((p) => p.match_id === match.id)
+                    return (
+                      <div className="closed-match-card" key={match.id}>
+                        <div className="closed-match-info">
+                          <strong>{match.home_team_name} x {match.away_team_name}</strong>
+                          <span className="closed-match-result">
+                            {match.home_score !== null && match.away_score !== null
+                              ? `${match.home_score} x ${match.away_score}`
+                              : 'Resultado pendente'
+                            }
+                          </span>
+                        </div>
+                        <div className="closed-match-prediction">
+                          {existingPrediction && (
+                            <>
+                              <span className="closed-pred-score">
+                                {existingPrediction.predicted_home_score} x {existingPrediction.predicted_away_score}
+                              </span>
+                              <span className={`closed-pred-points points-${existingPrediction.points}`}>
+                                {existingPrediction.points} pts
+                              </span>
+                            </>
+                          )}
+                          {!existingPrediction && (
+                            <span className="closed-no-pred">Sem palpite</span>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="prediction-grid">
-              {knockoutMatches.map((match) => {
+              {knockoutMatches.filter((m) => m.status !== 'FINISHED').sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime()).map((match) => {
                 const existingPrediction = knockoutPredictions.find((p) => p.match_id === match.id)
                 const currentInput = knockoutPredictionInputs[match.id] || {
                   home: '',
