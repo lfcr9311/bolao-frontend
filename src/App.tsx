@@ -4,6 +4,7 @@ import axios from 'axios'
 import './App.css'
 import { BracketView2 } from './components/BracketView2'
 import { BracketLeaderboard } from './components/BracketLeaderboard'
+import { BracketResults } from './components/BracketResults'
 import { OtherUsersPredictions } from './components/OtherUsersPredictions'
 import { useBracketPredictions } from './hooks/useBracketPredictions'
 
@@ -2034,6 +2035,8 @@ function App() {
               stats={bracketPredictions.stats}
               loading={bracketPredictions.loading}
             />
+
+            <BracketResults />
           </section>
         )}
 
