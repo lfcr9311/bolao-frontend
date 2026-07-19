@@ -174,17 +174,47 @@ export function BracketResults() {
                     <div style={{ color: '#60a5fa', fontSize: '12px', marginBottom: '5px' }}>
                       {roundNames[matchNum] || `Match ${matchNum}`}
                     </div>
-                    <div style={{ display: 'flex', gap: '20px' }}>
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                       <div>
                         <div style={{ fontSize: '12px', color: '#94a3b8' }}>Seu palpite:</div>
-                        <div style={{ color: '#fff', fontWeight: 'bold' }}>
+                        <div style={{
+                          color: isCorrect ? '#86efac' : '#fca5a5',
+                          fontWeight: 'bold',
+                          padding: '8px 12px',
+                          background: isCorrect ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                          borderRadius: '6px',
+                          marginTop: '4px'
+                        }}>
                           {teamMap[predictedTeamId]?.name || 'Desconhecido'}
                         </div>
                       </div>
-                      {actualTeamId && (
+                      {actualTeamId && !isCorrect && (
                         <div>
-                          <div style={{ fontSize: '12px', color: '#94a3b8' }}>Resultado:</div>
-                          <div style={{ color: '#fff', fontWeight: 'bold' }}>
+                          <div style={{ fontSize: '12px', color: '#fca5a5', fontWeight: 'bold' }}>❌ Resultado Real:</div>
+                          <div style={{
+                            color: '#86efac',
+                            fontWeight: 'bold',
+                            padding: '8px 12px',
+                            background: 'rgba(34, 197, 94, 0.3)',
+                            borderRadius: '6px',
+                            marginTop: '4px',
+                            border: '2px solid rgba(34, 197, 94, 0.5)'
+                          }}>
+                            {teamMap[actualTeamId]?.name || 'Desconhecido'}
+                          </div>
+                        </div>
+                      )}
+                      {actualTeamId && isCorrect && (
+                        <div>
+                          <div style={{ fontSize: '12px', color: '#86efac' }}>✓ Resultado:</div>
+                          <div style={{
+                            color: '#86efac',
+                            fontWeight: 'bold',
+                            padding: '8px 12px',
+                            background: 'rgba(34, 197, 94, 0.2)',
+                            borderRadius: '6px',
+                            marginTop: '4px'
+                          }}>
                             {teamMap[actualTeamId]?.name || 'Desconhecido'}
                           </div>
                         </div>
