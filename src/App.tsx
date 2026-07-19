@@ -6,6 +6,7 @@ import { BracketView2 } from './components/BracketView2'
 import { BracketLeaderboard } from './components/BracketLeaderboard'
 import { BracketResults } from './components/BracketResults'
 import { GeneralRanking } from './components/GeneralRanking'
+import { SidebarRanking } from './components/SidebarRanking'
 import { OtherUsersPredictions } from './components/OtherUsersPredictions'
 import { useBracketPredictions } from './hooks/useBracketPredictions'
 
@@ -867,6 +868,8 @@ function App() {
               Ranking
             </button>
           </nav>
+
+          <SidebarRanking />
         </div>
 
         <div className="sidebar-card">
