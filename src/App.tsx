@@ -5,6 +5,7 @@ import './App.css'
 import { BracketView2 } from './components/BracketView2'
 import { BracketLeaderboard } from './components/BracketLeaderboard'
 import { BracketResults } from './components/BracketResults'
+import { GeneralRanking } from './components/GeneralRanking'
 import { OtherUsersPredictions } from './components/OtherUsersPredictions'
 import { useBracketPredictions } from './hooks/useBracketPredictions'
 
@@ -2029,6 +2030,8 @@ function App() {
               loading={bracketPredictions.loading}
               disabled={bracketSaved}
             />
+
+            <GeneralRanking />
 
             <BracketLeaderboard
               leaderboard={bracketPredictions.leaderboard}
