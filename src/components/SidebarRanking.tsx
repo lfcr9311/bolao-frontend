@@ -28,7 +28,7 @@ export function SidebarRanking() {
       })
 
       const response = await api.get('/ranking/general')
-      setRanking(response.data.slice(0, 5))
+      setRanking(response.data)
     } catch (err) {
       console.error('Erro ao carregar ranking:', err)
     } finally {
@@ -48,7 +48,7 @@ export function SidebarRanking() {
   return (
     <div className="leaderboard-container">
       <div className="leaderboard-header">
-        <h3>🏆 Top 5</h3>
+        <h3>🏆 Ranking Geral</h3>
       </div>
 
       {ranking.map((user, index) => (
