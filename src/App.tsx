@@ -696,8 +696,9 @@ function App() {
 
   if (!user) {
     return (
-      <div className="auth-page">
-        <div className="auth-card">
+      <>
+        <div className="auth-page">
+          <div className="auth-card">
           <div className="auth-logo">🏆</div>
 
           <h1>Palpite Copa</h1>
@@ -795,10 +796,15 @@ function App() {
           )}
         </div>
       </div>
+      <footer className="app-footer">
+        <p>Caso você torceu, torce ou pretende torcer para a Bélgica, você automaticamente perderá 50 pontos</p>
+      </footer>
+    </>
     )
   }
 
   return (
+    <>
     <div className="app">
       <aside className="sidebar">
         <div>
@@ -2160,6 +2166,10 @@ function App() {
         )}
       </main>
     </div>
+    <footer className="app-footer">
+      <p>Caso você torceu, torce ou pretende torcer para a Bélgica, você automaticamente perderá 50 pontos</p>
+    </footer>
+    </>
   )
 }
 
