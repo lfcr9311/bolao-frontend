@@ -6,7 +6,6 @@ import { BracketView2 } from './components/BracketView2'
 import { BracketLeaderboard } from './components/BracketLeaderboard'
 import { BracketResults } from './components/BracketResults'
 import { GeneralRanking } from './components/GeneralRanking'
-import { SidebarRanking } from './components/SidebarRanking'
 import { OtherUsersPredictions } from './components/OtherUsersPredictions'
 import { useBracketPredictions } from './hooks/useBracketPredictions'
 
@@ -44,7 +43,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'bracket' | 'ranking'
+type Page = 'inicio' | 'selecoes' | 'jogos' | 'palpites' | 'palpites-knockout' | 'bracket' | 'ranking-geral' | 'ranking'
 type RankingView = 'geral' | 'knockout'
 type AuthMode = 'login' | 'register'
 type MatchStatus = 'SCHEDULED' | 'LIVE' | 'FINISHED' | 'CANCELLED'
@@ -861,6 +860,15 @@ function App() {
 
             <button
               type="button"
+              className={page === 'ranking-geral' ? 'active' : ''}
+              onClick={() => setPage('ranking-geral')}
+            >
+              <span>🏆</span>
+              Ranking Geral
+            </button>
+
+            <button
+              type="button"
               className={page === 'ranking' ? 'active' : ''}
               onClick={() => setPage('ranking')}
             >
@@ -868,8 +876,6 @@ function App() {
               Ranking
             </button>
           </nav>
-
-          <SidebarRanking />
         </div>
 
         <div className="sidebar-card">
@@ -2043,6 +2049,12 @@ function App() {
             />
 
             <BracketResults />
+          </section>
+        )}
+
+        {page === 'ranking-geral' && (
+          <section className="page">
+            <GeneralRanking />
           </section>
         )}
 
