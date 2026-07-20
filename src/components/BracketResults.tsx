@@ -44,6 +44,7 @@ export function BracketResults() {
 
       // Carrega resultados
       const resultsResponse = await api.get('/bracket-predictions/my-results')
+      console.log('Bracket results:', resultsResponse.data)
       setResults(resultsResponse.data)
 
       // Carrega times para mapear UUIDs → nomes
@@ -150,7 +151,7 @@ export function BracketResults() {
         </div>
       </div>
 
-      {results.results_array && Object.keys(results.results_array).length > 0 ? (
+      {results.prediction_array && Object.keys(results.prediction_array).length > 0 ? (
         <div>
           <h3 style={{ color: '#60a5fa', marginBottom: '15px' }}>Comparação de Palpites</h3>
           {Object.entries(results.prediction_array).map(([matchNum, predictedTeamId]) => {
