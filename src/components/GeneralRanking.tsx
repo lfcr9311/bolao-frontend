@@ -33,7 +33,8 @@ export function GeneralRanking() {
       })
 
       const response = await api.get('/ranking/general')
-      setRanking(response.data)
+      const sorted = response.data.sort((a, b) => b.total_points - a.total_points)
+      setRanking(sorted)
     } catch (err) {
       console.error('Erro ao carregar ranking geral:', err)
     } finally {
