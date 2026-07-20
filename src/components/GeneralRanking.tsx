@@ -32,9 +32,9 @@ export function GeneralRanking() {
         }
       })
 
-      const response = await api.get('/ranking/general')
+      const response = await api.get<RankingUser[]>('/ranking/general')
       console.log('Raw ranking data:', response.data)
-      const sorted = response.data.sort((a, b) => {
+      const sorted = response.data.sort((a: RankingUser, b: RankingUser) => {
         const aPts = Number(b.total_points)
         const bPts = Number(a.total_points)
         return aPts - bPts
